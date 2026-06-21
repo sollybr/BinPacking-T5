@@ -4,6 +4,70 @@
 
 #include "core/solucao.h"
 
+ Bin criar_bin()
+{
+    Bin b;
+
+    b.capacidade_usada = 0;
+
+    b.qtd_objetos = 0;
+
+    b.objetos = malloc(sizeof(int) * MAX_BINS);
+
+    return b;
+}
+
+void print_bins(Solucao * s, Instancia * inst){
+    Bin * bin = s->bins;
+        for (int i = 0; i < s->qtd_bins; i++)
+        {
+            for (int j = 0; j < (bin+i)->qtd_objetos; j++)
+            {
+                printf("%d,", inst->pesos[((bin+i)->objetos)[j]]);
+            }
+            printf("\t");
+        }
+    printf("\n");
+}
+
+void remover_bin(Solucao *s, int pos)
+{
+    if(pos < 0 || pos >= s->qtd_bins)
+        return;
+
+    for(int i = pos; i < s->qtd_bins - 1; i++)
+        s->bins[i] = s->bins[i + 1];
+
+    s->qtd_bins--;
+}
+
+ void adicionar_item_bin(
+        Bin *bin,
+        int item,
+        int peso)
+{
+
+    bin->objetos[bin->qtd_objetos] = item;
+
+    bin->qtd_objetos++;
+
+    bin->capacidade_usada += peso;
+
+}
+
+void remover_item(
+        Bin *b,
+        int pos,
+        int peso)
+{
+    for(int i = pos; i < b->qtd_objetos - 1; i++)
+        b->objetos[i] = b->objetos[i + 1];
+
+    b->qtd_objetos--;
+
+    b->capacidade_usada -= peso;
+}
+
 Solucao* criar_solucao(int max_bins)
 {
     Solucao *s = malloc(sizeof(Solucao));
@@ -29,7 +93,7 @@ Solucao* copiar_solucao(const Solucao *orig)
 
     copia->qtd_bins = orig->qtd_bins;
 
-    copia->bins = malloc(sizeof(Bin) * MAX_BINS);
+    copia->bins = malloc(sizeof(Bin) * orig->qtd_bins);
 
     for(int i = 0; i < orig->qtd_bins; i++)
     {
@@ -40,7 +104,7 @@ Solucao* copiar_solucao(const Solucao *orig)
             orig->bins[i].qtd_objetos;
 
         copia->bins[i].objetos =
-            malloc(sizeof(int) * MAX_ITENS_BIN);
+            malloc(sizeof(int) * orig->bins[i].qtd_objetos);
 
         memcpy(
             copia->bins[i].objetos,
@@ -65,22 +129,11 @@ void liberar_solucao(Solucao *s)
     free(s);
 }
 
-
-
-/*
-    Função objetivo clássica:
-    minimizar número de bins
-*/
 int custo(const Solucao *s)
 {
     return s->qtd_bins;
 }
 
-
-
-/*
-    Verifica se solução respeita capacidade
-*/
 int solucao_valida(const Solucao *s, const Instancia *inst)
 {
     for(int i = 0; i < s->qtd_bins; i++)

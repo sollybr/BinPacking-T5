@@ -1,10 +1,8 @@
 #ifndef HEURISTICA_H
 #define HEURISTICA_H
 
-#include "core/instancia.h"
 #include "core/solucao.h"
-
-#define MAX_BINS 10000
+#include "core/instancia.h"
 
 typedef Solucao* (*Heuristica)(Instancia *);
 

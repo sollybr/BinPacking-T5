@@ -167,5 +167,5 @@ For this project (metaheuristics + experiments):
 ```
 cmake -S . -B build -G Ninja
 cmake --build build
-./binpacking --partidas 50 --tempo 5 --vizinhanca 1000
+./binpacking filename --partidas 50 --tempo 5 --vizinhanca 1000
 ```

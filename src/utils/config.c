@@ -23,8 +23,6 @@ void configurar_padrao(Config *cfg)
 
 }
 
-
-
 void ler_parametros(
         int argc,
         char *argv[],

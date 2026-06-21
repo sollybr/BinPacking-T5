@@ -3,7 +3,6 @@
 #include <time.h>
 
 #include "utils/config.h"
-#include "utils/shuffle.h"
 
 #include "core/solucao.h"
 #include "core/instancia.h"
@@ -18,10 +17,14 @@ int main(int argc, char** argv)
     ler_parametros(argc, argv, &config);
 
     Instancia *inst = ler_instancia(argv[1]);
-
+    for (size_t i = 0; i < inst->n; i++)
+    {
+        printf("%d ", inst->pesos[i]);
+    }
+    
     Solucao *best = multistart(inst, config);
 
-    printf("Melhor solução: %d bins\n", custo(best));
+    printf("Melhor solucao: %d bins\n", custo(best));
 
     liberar_solucao(best);
     liberar_instancia(inst);

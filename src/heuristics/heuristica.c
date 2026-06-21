@@ -11,38 +11,9 @@ Heuristica escolher_heuristica()
         return best_fit;
 }
 
-static void adicionar_item_bin(
-        Bin *bin,
-        int item,
-        int peso)
-{
-
-    bin->objetos[bin->qtd_objetos] = item;
-
-    bin->qtd_objetos++;
-
-    bin->capacidade_usada += peso;
-
-}
-
-static Bin criar_bin()
-{
-
-    Bin b;
-
-    b.capacidade_usada = 0;
-
-    b.qtd_objetos = 0;
-
-    b.objetos = malloc(sizeof(int) * MAX_BINS);
-
-
-    return b;
-}
-
 Solucao* first_fit(Instancia *inst)
 {
-
+    printf("first_fit ");
     Solucao *sol = criar_solucao(inst->n);
 
     for(int i = 0; i < inst->n; i++)
@@ -52,26 +23,15 @@ Solucao* first_fit(Instancia *inst)
 
         int colocado = 0;
 
-
-
         for(int j = 0; j < sol->qtd_bins; j++)
         {
 
             Bin *b = &sol->bins[j];
 
-
-            if(
-                b->capacidade_usada + peso
-                <= inst->capacidade
-              )
+            if(b->capacidade_usada + peso <= inst->capacidade)
             {
 
-                adicionar_item_bin(
-                    b,
-                    i,
-                    peso
-                );
-
+                adicionar_item_bin( b,i,peso);
 
                 colocado = 1;
 
@@ -83,9 +43,7 @@ Solucao* first_fit(Instancia *inst)
         if(!colocado)
         {
 
-            sol->bins[sol->qtd_bins]
-                = criar_bin();
-
+            sol->bins[sol->qtd_bins] = criar_bin();
 
             adicionar_item_bin(
                 &sol->bins[sol->qtd_bins],
@@ -100,13 +58,13 @@ Solucao* first_fit(Instancia *inst)
 
     }
 
-
     return sol;
 }
 
 
 Solucao* best_fit(Instancia *inst)
 {
+        printf("best_fit ");
 
     Solucao *sol = criar_solucao(inst->n);
 
@@ -124,13 +82,10 @@ Solucao* best_fit(Instancia *inst)
 
             Bin *b = &sol->bins[j];
 
-
             int sobra =
                 inst->capacidade
                 -
                 (b->capacidade_usada + peso);
-
-
 
             if(
                 sobra >= 0 &&
@@ -146,8 +101,6 @@ Solucao* best_fit(Instancia *inst)
 
         }
 
-
-
         if(melhor_bin != -1)
         {
 
@@ -162,9 +115,7 @@ Solucao* best_fit(Instancia *inst)
         else
         {
 
-            sol->bins[sol->qtd_bins]
-                = criar_bin();
-
+            sol->bins[sol->qtd_bins] = criar_bin();
 
             adicionar_item_bin(
                 &sol->bins[sol->qtd_bins],
@@ -172,13 +123,11 @@ Solucao* best_fit(Instancia *inst)
                 peso
             );
 
-
             sol->qtd_bins++;
 
         }
 
     }
-
 
     return sol;
 

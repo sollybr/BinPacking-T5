@@ -22,6 +22,18 @@ typedef struct {
 
 } Solucao;
 
+Bin criar_bin();
+
+void print_bins(Solucao *s, Instancia *inst);
+
+void remover_bin(Solucao *s, int pos);
+
+void adicionar_item_bin(
+        Bin *bin,
+        int item,
+        int peso);
+
+void remover_item(Bin *b, int pos, int peso);
 
 Solucao* criar_solucao(int max_bins);
 

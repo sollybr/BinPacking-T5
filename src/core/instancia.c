@@ -13,9 +13,7 @@ Instancia* ler_instancia(const char *arquivo)
         return NULL;
     }
 
-
     Instancia *inst = malloc(sizeof(Instancia));
-
 
     if(inst == NULL)
     {
@@ -23,16 +21,11 @@ Instancia* ler_instancia(const char *arquivo)
         return NULL;
     }
 
-
-    // primeira linha: n
     fscanf(fp, "%d", &inst->n);
 
-
-    // segunda linha: capacidade
     fscanf(fp, "%d", &inst->capacidade);
 
     inst->pesos = malloc(sizeof(int) * inst->n);
-
 
     if(inst->pesos == NULL)
     {
