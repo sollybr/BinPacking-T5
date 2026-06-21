@@ -4,23 +4,13 @@
 
 #include "search/busca_local.h"
 
-static void liberar(Solucao *s)
-{
-    if(!s) return;
-
-    for(int i = 0; i < s->qtd_bins; i++)
-        free(s->bins[i].objetos);
-
-    free(s->bins);
-    free(s);
-}
 
 Solucao* busca_local_exaustiva(
     Solucao *inicio,
     Instancia *inst,
     double tempo_max)
 {
-    clock_t start = clock();
+    double start = (double)clock() / CLOCKS_PER_SEC;
 
     Solucao *atual = copiar_solucao(inicio);
 
@@ -36,99 +26,77 @@ Solucao* busca_local_exaustiva(
         Solucao *melhor_global = copiar_solucao(atual);
         int melhor_custo = custo(atual);
 
-        Solucao *ref = atual;
-        int n_bins = ref->qtd_bins;
+        int n_bins = atual->qtd_bins;
 
-        // for(int i = 0; i < n_bins; i++)
-        // {
-        //     int qtd = ref->bins[i].qtd_objetos;
+        for(int i = 0; i < n_bins; i++)
+        {
+            int qtd = atual->bins[i].qtd_objetos;
 
-        //     for(int j = 0; j < qtd; j++)
-        //     {
-        //         int item = ref->bins[i].objetos[j];
-        //         int peso = inst->pesos[item];
+            for(int j = 0; j < qtd; j++)
+            {
+                int item = atual->bins[i].objetos[j];
+                int peso = item;
 
-        //         printf("[TRY] i=%d j=%d item=%d peso=%d bins=%d\n",
-        //                i, j, item, peso, n_bins);
+                for(int k = 0; k < n_bins; k++)
+                {
+                    if(i == k) continue;
 
-        //         for(int k = 0; k < n_bins; k++)
-        //         {
-        //             if(i == k) continue;
+                    double now = (double)clock() / CLOCKS_PER_SEC;
 
-        //             double tempo =
-        //                 (double)(clock() - start) / CLOCKS_PER_SEC;
+                    if(now - start >= tempo_max)
+                    {
+                        Solucao *ret = copiar_solucao(atual);
+                        liberar_solucao(atual);
+                        liberar_solucao(melhor_global);
+                        return ret;
+                    }
 
-        //             if(tempo >= tempo_max)
-        //             {
-        //                 printf("[TIMEOUT] i=%d j=%d k=%d elapsed=%.4f\n",
-        //                        i, j, k, tempo);
-        //                 return atual;
-        //             }
+                    Solucao *novo = copiar_solucao(atual);
 
-        //             Solucao *novo = copiar_solucao(atual);
+                    Bin *origem = &novo->bins[i];
+                    Bin *dest   = &novo->bins[k];
 
-        //             Bin *origem = &novo->bins[i];
-        //             Bin *dest   = &novo->bins[k];
+                    if(dest->capacidade_usada + peso <= inst->capacidade)
+                    {
+                        remover_item(origem, j, peso);
 
-        //             int bin_removed = 0;
+                        dest->objetos[dest->qtd_objetos++] = item;
+                        dest->capacidade_usada += peso;
 
-        //             if(dest->capacidade_usada + peso <= inst->capacidade)
-        //             {
-        //                 printf("[MOVE] i=%d j=%d k=%d\n", i, j, k);
+                        if(origem->qtd_objetos == 0)
+                            remover_bin(novo, i);
 
-        //                 remover_item(origem, j, peso);
+                        int c = custo(novo);
 
-        //                 dest->objetos[dest->qtd_objetos++] = item;
-        //                 dest->capacidade_usada += peso;
+                        if(c < melhor_custo)
+                        {
+                            liberar_solucao(melhor_global);
+                            melhor_global = novo;
+                            melhor_custo = c;
+                            melhorou = 1;
+                            goto NEXT;
+                        }
 
-        //                 if(origem->qtd_objetos == 0)
-        //                 {
-        //                     remover_bin(novo, i);
-        //                     bin_removed = 1;
-        //                     printf("[BIN REMOVED] i=%d\n", i);
-        //                 }
+                        liberar_solucao(novo);
+                    }
+                    else
+                    {
+                        liberar_solucao(novo);
+                    }
+                }
+            }
+        }
 
-        //                 int c = custo(novo);
-
-        //                 printf("[COST] current=%d best=%d bins=%d\n",
-        //                        c, melhor_custo, novo->qtd_bins);
-
-        //                 if(c < melhor_custo)
-        //                 {
-        //                     printf("[IMPROVE] new_best=%d\n", c);
-
-        //                     liberar(melhor_global);
-        //                     melhor_global = novo;
-        //                     melhor_custo = c;
-        //                     melhorou = 1;
-        //                 }
-        //                 else
-        //                 {
-        //                     liberar(novo);
-        //                 }
-        //             }
-        //             else
-        //             {
-        //                 printf("[SKIP CAPACITY] i=%d j=%d k=%d\n", i, j, k);
-        //                 liberar(novo);
-        //             }
-
-        //             if(bin_removed)
-        //                 break;
-        //         }
-        //     }
-        // }
+        NEXT:
 
         if(melhorou)
         {
-            printf("[UPDATE GLOBAL]\n");
-            liberar(atual);
+            liberar_solucao(atual);
             atual = melhor_global;
         }
         else
         {
-            printf("[NO IMPROVEMENT ITERATION]\n");
-            liberar(melhor_global);
+            liberar_solucao(melhor_global);
         }
     }
 
