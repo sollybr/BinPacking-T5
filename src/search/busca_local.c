@@ -1,18 +1,65 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 #include "search/busca_local.h"
+#include "core/solucao.h"
 
-static void liberar(Solucao *s)
+static int tempo_excedido(clock_t start, double limite)
 {
-    if(!s) return;
+    return ((double)(clock() - start) / CLOCKS_PER_SEC) >= limite;
+}
 
+static void move_item(
+    Solucao *s,
+    int i, int j, int k,
+    Instancia *inst,
+    int *item_out,
+    int *peso_out)
+{
+    int item = s->bins[i].objetos[j];
+    int peso = inst->pesos[item];
+
+    *item_out = item;
+    *peso_out = peso;
+
+    remover_item(&s->bins[i], j, peso);
+    adicionar_item_bin(&s->bins[k], item, peso);
+}
+
+static void undo_move(
+    Solucao *s,
+    int from,
+    int to,
+    int item,
+    int peso,
+    int pos_original)
+{
+    remover_item(&s->bins[to],
+                 s->bins[to].qtd_objetos - 1,
+                 peso);
+
+    for(int i = s->bins[from].qtd_objetos; i > pos_original; i--)
+        s->bins[from].objetos[i] = s->bins[from].objetos[i - 1];
+
+    s->bins[from].objetos[pos_original] = item;
+    s->bins[from].qtd_objetos++;
+    s->bins[from].capacidade_usada += peso;
+}
+
+static void compactar_bins(Solucao *s)
+{
     for(int i = 0; i < s->qtd_bins; i++)
-        free(s->bins[i].objetos);
+    {
+        if(s->bins[i].qtd_objetos == 0)
+        {
+            for(int j = i; j < s->qtd_bins - 1; j++)
+                s->bins[j] = s->bins[j + 1];
 
-    free(s->bins);
-    free(s);
+            s->qtd_bins--;
+            i--;
+        }
+    }
 }
 
 Solucao* busca_local_exaustiva(
@@ -22,117 +69,62 @@ Solucao* busca_local_exaustiva(
 {
     clock_t start = clock();
 
-    Solucao *atual = copiar_solucao(inicio);
+    Solucao *atual = inicio;
 
     printf("[INIT] bins=%d tempo_max=%.3f\n",
            atual->qtd_bins, tempo_max);
 
     int melhorou = 1;
 
-    while(melhorou)
+    while(melhorou && !tempo_excedido(start, tempo_max))
     {
         melhorou = 0;
 
-        Solucao *melhor_global = copiar_solucao(atual);
-        int melhor_custo = custo(atual);
+        int best_delta = 0;
+        int best_i = -1, best_j = -1, best_k = -1;
 
-        Solucao *ref = atual;
-        int n_bins = ref->qtd_bins;
+        int n_bins = atual->qtd_bins;
 
-        // for(int i = 0; i < n_bins; i++)
-        // {
-        //     int qtd = ref->bins[i].qtd_objetos;
-
-        //     for(int j = 0; j < qtd; j++)
-        //     {
-        //         int item = ref->bins[i].objetos[j];
-        //         int peso = inst->pesos[item];
-
-        //         printf("[TRY] i=%d j=%d item=%d peso=%d bins=%d\n",
-        //                i, j, item, peso, n_bins);
-
-        //         for(int k = 0; k < n_bins; k++)
-        //         {
-        //             if(i == k) continue;
-
-        //             double tempo =
-        //                 (double)(clock() - start) / CLOCKS_PER_SEC;
-
-        //             if(tempo >= tempo_max)
-        //             {
-        //                 printf("[TIMEOUT] i=%d j=%d k=%d elapsed=%.4f\n",
-        //                        i, j, k, tempo);
-        //                 return atual;
-        //             }
-
-        //             Solucao *novo = copiar_solucao(atual);
-
-        //             Bin *origem = &novo->bins[i];
-        //             Bin *dest   = &novo->bins[k];
-
-        //             int bin_removed = 0;
-
-        //             if(dest->capacidade_usada + peso <= inst->capacidade)
-        //             {
-        //                 printf("[MOVE] i=%d j=%d k=%d\n", i, j, k);
-
-        //                 remover_item(origem, j, peso);
-
-        //                 dest->objetos[dest->qtd_objetos++] = item;
-        //                 dest->capacidade_usada += peso;
-
-        //                 if(origem->qtd_objetos == 0)
-        //                 {
-        //                     remover_bin(novo, i);
-        //                     bin_removed = 1;
-        //                     printf("[BIN REMOVED] i=%d\n", i);
-        //                 }
-
-        //                 int c = custo(novo);
-
-        //                 printf("[COST] current=%d best=%d bins=%d\n",
-        //                        c, melhor_custo, novo->qtd_bins);
-
-        //                 if(c < melhor_custo)
-        //                 {
-        //                     printf("[IMPROVE] new_best=%d\n", c);
-
-        //                     liberar(melhor_global);
-        //                     melhor_global = novo;
-        //                     melhor_custo = c;
-        //                     melhorou = 1;
-        //                 }
-        //                 else
-        //                 {
-        //                     liberar(novo);
-        //                 }
-        //             }
-        //             else
-        //             {
-        //                 printf("[SKIP CAPACITY] i=%d j=%d k=%d\n", i, j, k);
-        //                 liberar(novo);
-        //             }
-
-        //             if(bin_removed)
-        //                 break;
-        //         }
-        //     }
-        // }
-
-        if(melhorou)
+        for(int i = 0; i < n_bins; i++)
         {
-            printf("[UPDATE GLOBAL]\n");
-            liberar(atual);
-            atual = melhor_global;
+            for(int j = 0; j < atual->bins[i].qtd_objetos; j++)
+            {
+                int item = atual->bins[i].objetos[j];
+                int peso = inst->pesos[item];
+
+                for(int k = 0; k < n_bins; k++)
+                {
+                    if(i == k) continue;
+
+                    if(atual->bins[k].capacidade_usada + peso > inst->capacidade)
+                        continue;
+
+                    int delta = 0;
+
+                    if(delta <= best_delta) continue;
+
+                    best_delta = delta;
+                    best_i = i;
+                    best_j = j;
+                    best_k = k;
+                }
+            }
         }
-        else
+
+        if(best_i != -1)
         {
-            printf("[NO IMPROVEMENT ITERATION]\n");
-            liberar(melhor_global);
+            int item = atual->bins[best_i].objetos[best_j];
+            int peso = inst->pesos[item];
+
+            remover_item(&atual->bins[best_i], best_j, peso);
+            adicionar_item_bin(&atual->bins[best_k], item, peso);
+
+            compactar_bins(atual);
+
+            melhorou = 1;
         }
     }
 
     printf("[END] final_bins=%d\n", atual->qtd_bins);
-
     return atual;
 }
