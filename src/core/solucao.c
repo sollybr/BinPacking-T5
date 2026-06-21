@@ -17,54 +17,18 @@
     return b;
 }
 
-void print_bins(Solucao * s, Instancia * inst){
-    Bin * bin = s->bins;
-        for (int i = 0; i < s->qtd_bins; i++)
-        {
-            for (int j = 0; j < (bin+i)->qtd_objetos; j++)
-            {
-                printf("%d,", inst->pesos[((bin+i)->objetos)[j]]);
-            }
-            printf("\t");
-        }
-    printf("\n");
-}
-
-void remover_bin(Solucao *s, int pos)
+void adicionar_item_bin(Bin *bin, int item, int peso)
 {
-    if(pos < 0 || pos >= s->qtd_bins)
-        return;
-
-    for(int i = pos; i < s->qtd_bins - 1; i++)
-        s->bins[i] = s->bins[i + 1];
-
-    s->qtd_bins--;
-}
-
- void adicionar_item_bin(
-        Bin *bin,
-        int item,
-        int peso)
-{
-
-    bin->objetos[bin->qtd_objetos] = item;
-
-    bin->qtd_objetos++;
-
+    bin->objetos[bin->qtd_objetos++] = item;
     bin->capacidade_usada += peso;
-
 }
 
-void remover_item(
-        Bin *b,
-        int pos,
-        int peso)
+void remover_item(Bin *b, int pos, int peso)
 {
     for(int i = pos; i < b->qtd_objetos - 1; i++)
         b->objetos[i] = b->objetos[i + 1];
 
     b->qtd_objetos--;
-
     b->capacidade_usada -= peso;
 }
 
@@ -76,7 +40,7 @@ Solucao* criar_solucao(int max_bins)
 
     s->qtd_bins = 0;
 
-    s->bins = malloc(sizeof(Bin) * max_bins);
+    s->bins = calloc(max_bins, sizeof(Bin));
 
     if(!s->bins)
     {
@@ -92,25 +56,28 @@ Solucao* copiar_solucao(const Solucao *orig)
     Solucao *copia = malloc(sizeof(Solucao));
 
     copia->qtd_bins = orig->qtd_bins;
-
     copia->bins = malloc(sizeof(Bin) * orig->qtd_bins);
 
     for(int i = 0; i < orig->qtd_bins; i++)
     {
-        copia->bins[i].capacidade_usada =
-            orig->bins[i].capacidade_usada;
+        copia->bins[i].capacidade_usada = orig->bins[i].capacidade_usada;
+        copia->bins[i].qtd_objetos = orig->bins[i].qtd_objetos;
 
-        copia->bins[i].qtd_objetos =
-            orig->bins[i].qtd_objetos;
+        if(orig->bins[i].qtd_objetos > 0)
+        {
+            copia->bins[i].objetos =
+                malloc(sizeof(int) * orig->bins[i].qtd_objetos);
 
-        copia->bins[i].objetos =
-            malloc(sizeof(int) * orig->bins[i].qtd_objetos);
-
-        memcpy(
-            copia->bins[i].objetos,
-            orig->bins[i].objetos,
-            sizeof(int) * orig->bins[i].qtd_objetos
-        );
+            memcpy(
+                copia->bins[i].objetos,
+                orig->bins[i].objetos,
+                sizeof(int) * orig->bins[i].qtd_objetos
+            );
+        }
+        else
+        {
+            copia->bins[i].objetos = NULL;
+        }
     }
 
     return copia;
@@ -151,4 +118,17 @@ int solucao_valida(const Solucao *s, const Instancia *inst)
     }
 
     return 1;
+}
+
+void print_bins(Solucao * s, Instancia * inst){
+    Bin * bin = s->bins;
+        for (int i = 0; i < s->qtd_bins; i++)
+        {
+            for (int j = 0; j < (bin+i)->qtd_objetos; j++)
+            {
+                printf("%d,", inst->pesos[((bin+i)->objetos)[j]]);
+            }
+            printf("\t");
+        }
+    printf("\n");
 }

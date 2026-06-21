@@ -38,7 +38,7 @@ Solucao* multistart(Instancia *inst, const Config cfg)
 
         Solucao *s = h(inst);
 
-        s = busca_local_exaustiva(s, inst, cfg.tempo_limite);
+        // s = busca_local_exaustiva(s, inst, cfg.tempo_limite);
 
         printf("Partida %d -> %d bins\t",
                i + 1,
