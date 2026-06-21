@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "heuristica.h"
+#include "heuristics/heuristica.h"
 
 Heuristica escolher_heuristica()
 {
@@ -10,22 +10,6 @@ Heuristica escolher_heuristica()
     else
         return best_fit;
 }
-
-
-static Solucao* criar_solucao()
-{
-
-    Solucao *sol = malloc(sizeof(Solucao));
-
-
-    sol->bins = malloc(sizeof(Bin) * MAX_BINS);
-
-    sol->qtd_bins = 0;
-
-
-    return sol;
-}
-
 
 static void adicionar_item_bin(
         Bin *bin,
@@ -41,13 +25,10 @@ static void adicionar_item_bin(
 
 }
 
-
-
 static Bin criar_bin()
 {
 
     Bin b;
-
 
     b.capacidade_usada = 0;
 
@@ -62,9 +43,7 @@ static Bin criar_bin()
 Solucao* first_fit(Instancia *inst)
 {
 
-    Solucao *sol = criar_solucao();
-
-
+    Solucao *sol = criar_solucao(inst->n);
 
     for(int i = 0; i < inst->n; i++)
     {
@@ -101,10 +80,6 @@ Solucao* first_fit(Instancia *inst)
 
         }
 
-
-
-        // nenhum bin serviu
-
         if(!colocado)
         {
 
@@ -133,22 +108,16 @@ Solucao* first_fit(Instancia *inst)
 Solucao* best_fit(Instancia *inst)
 {
 
-    Solucao *sol = criar_solucao();
-
-
+    Solucao *sol = criar_solucao(inst->n);
 
     for(int i = 0; i < inst->n; i++)
     {
 
         int peso = inst->pesos[i];
 
-
         int melhor_bin = -1;
 
-
         int menor_sobra = inst->capacidade + 1;
-
-
 
         for(int j = 0; j < sol->qtd_bins; j++)
         {
@@ -212,25 +181,5 @@ Solucao* best_fit(Instancia *inst)
 
 
     return sol;
-
-}
-
-void liberar_solucao(Solucao *sol)
-{
-
-    if(sol == NULL)
-        return;
-
-
-    for(int i = 0; i < sol->qtd_bins; i++)
-    {
-        free(sol->bins[i].objetos);
-    }
-
-
-    free(sol->bins);
-
-
-    free(sol);
 
 }

@@ -1,9 +1,9 @@
 #ifndef MULTISTART_H
 #define MULTISTART_H
 
-#include "config.h"
-#include "heuristica.h"
-#include "busca_local.h"
+#include "utils/config.h"
+#include "heuristics/heuristica.h"
+#include "search/busca_local.h"
 
 Solucao* multistart(
     Instancia *inst,

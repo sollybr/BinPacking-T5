@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "instancia.h"
+#include "core/instancia.h"
 
 
 Instancia* ler_instancia(const char *arquivo)
@@ -31,8 +31,6 @@ Instancia* ler_instancia(const char *arquivo)
     // segunda linha: capacidade
     fscanf(fp, "%d", &inst->capacidade);
 
-
-
     inst->pesos = malloc(sizeof(int) * inst->n);
 
 
@@ -43,16 +41,10 @@ Instancia* ler_instancia(const char *arquivo)
         return NULL;
     }
 
-
-
-    // lê pesos dos objetos
-
     for(int i = 0; i < inst->n; i++)
     {
         fscanf(fp, "%d", &inst->pesos[i]);
     }
-
-
 
     fclose(fp);
 

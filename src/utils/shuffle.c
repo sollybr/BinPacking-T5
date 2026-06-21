@@ -1,4 +1,4 @@
-#include "shuffle.h"
+#include "utils/shuffle.h"
 #include <stdlib.h>
 #include <string.h>
 

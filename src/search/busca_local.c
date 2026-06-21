@@ -2,12 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "busca_local.h"
-
-static int custo(Solucao *s)
-{
-    return s->qtd_bins;
-}
+#include "search/busca_local.h"
 
 static Solucao* copiar(Solucao *s)
 {
@@ -55,10 +50,7 @@ static void remover_item(Bin *b, int pos)
 }
 
 
-Solucao* busca_local_exaustiva(
-    Solucao *inicio,
-    double tempo_max
-)
+Solucao* busca_local_exaustiva(Solucao *inicio, double tempo_max)
 {
     clock_t start = clock();
 

@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "config.h"
+#include "utils/config.h"
 
 #define DEFAULT_PARTIDAS 50
 #define DEFAULT_TEMPO 5.0

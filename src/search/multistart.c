@@ -2,16 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "multistart.h"
-
-
-static Heuristica escolher_heuristica()
-{
-    if(rand() % 2)
-        return first_fit;
-    else
-        return best_fit;
-}
+#include "search/multistart.h"
 
 
 static int melhor(Solucao *a, Solucao *b)
@@ -20,15 +11,11 @@ static int melhor(Solucao *a, Solucao *b)
 }
 
 
-Solucao* multistart(
-    Instancia *inst,
-    Config cfg
-)
+Solucao* multistart(Instancia *inst, const Config cfg)
 {
     Solucao *melhor_global = NULL;
 
     clock_t inicio_global = clock();
-
 
     for(int i = 0; i < cfg.partidas; i++)
     {
@@ -41,7 +28,6 @@ Solucao* multistart(
 
 
         Heuristica h = escolher_heuristica();
-
 
         Solucao *s = h(inst);
 
