@@ -26,8 +26,6 @@ Bin criar_bin();
 
 void print_bins(Solucao *s, Instancia *inst);
 
-void remover_bin(Solucao *s, int pos);
-
 void adicionar_item_bin(
         Bin *bin,
         int item,

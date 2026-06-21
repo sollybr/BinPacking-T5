@@ -17,23 +17,6 @@
     return b;
 }
 
-void remover_bin(Solucao *s, int pos)
-{
-    if(pos < 0 || pos >= s->qtd_bins)
-        return;
-
-    free(s->bins[pos].objetos);
-
-    for(int i = pos; i < s->qtd_bins - 1; i++)
-        s->bins[i] = s->bins[i + 1];
-
-    s->qtd_bins--;
-
-    s->bins[s->qtd_bins].objetos = NULL;
-    s->bins[s->qtd_bins].qtd_objetos = 0;
-    s->bins[s->qtd_bins].capacidade_usada = 0;
-}
-
 void adicionar_item_bin(Bin *bin, int item, int peso)
 {
     bin->objetos[bin->qtd_objetos++] = item;
