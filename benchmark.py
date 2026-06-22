@@ -7,8 +7,8 @@ SAMPLES_DIR = Path("samples")
 LOG_DIR = Path("logs")
 BINARY = "./build/binpacking"
 
-PARTIDAS = 50
-TEMPO = 5
+PARTIDAS = 3
+TEMPO = 2
 VIZ = 10
 
 
