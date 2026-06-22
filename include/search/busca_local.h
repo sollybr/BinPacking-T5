@@ -2,11 +2,10 @@
 #define BUSCA_LOCAL_H
 
 #include "core/solucao.h"
-#include "heuristics/heuristica.h"
 
 Solucao* busca_local_exaustiva(
     Solucao *inicio,
-    Instancia *,
+    Instancia *inst,
     double tempo_max
 );
 

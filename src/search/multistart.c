@@ -19,13 +19,7 @@ Solucao* multistart(Instancia *inst, const Config cfg)
 
     for(int i = 0; i < cfg.partidas; i++)
     {
-        double tempo_global =
-            (double)(clock() - inicio_global)
-            / CLOCKS_PER_SEC;
-
-        if(tempo_global >= cfg.tempo_limite)
-            break;
-
+        
         shuffle(
             pesos_reordenados,
             inst->n,

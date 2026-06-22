@@ -9,6 +9,14 @@
 #include "heuristics/heuristica.h"
 #include "search/multistart.h"
 
+void printinstancia(Instancia *inst){
+    for (size_t i = 0; i < inst->n; i++)
+    {
+        printf("%d ", inst->pesos[i]);
+    }
+    printf("\n");
+}
+
 int main(int argc, char** argv)
 {
     srand(time(NULL));
@@ -17,10 +25,8 @@ int main(int argc, char** argv)
     ler_parametros(argc, argv, &config);
 
     Instancia *inst = ler_instancia(argv[1]);
-    for (size_t i = 0; i < inst->n; i++)
-    {
-        printf("%d ", inst->pesos[i]);
-    }
+
+    printinstancia(inst);
     
     Solucao *best = multistart(inst, config);
 

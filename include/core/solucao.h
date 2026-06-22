@@ -16,13 +16,13 @@ typedef struct {
 
 
 typedef struct {
-
     Bin *bins;
     int qtd_bins;
-
+    int cap_bins;
 } Solucao;
 
 Bin criar_bin();
+Solucao* criar_solucao(int max_bins);
 
 void print_bins(Solucao *s, Instancia *inst);
 
@@ -33,7 +33,9 @@ void adicionar_item_bin(
 
 void remover_item(Bin *b, int pos, int peso);
 
-Solucao* criar_solucao(int max_bins);
+void compactar_bins(Solucao *s);
+
+int adicionar_bin(Solucao *s);
 
 Solucao* copiar_solucao(const Solucao *s);
 

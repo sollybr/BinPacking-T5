@@ -12,7 +12,7 @@ void shuffle(void *array, int n, size_t size)
 
               int j = rand() % (i + 1);
 
-              char temp[size];
+              char *temp = malloc(size);
 
               memcpy(
                      temp,
