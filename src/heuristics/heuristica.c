@@ -43,16 +43,9 @@ Solucao* first_fit(Instancia *inst)
         if(!colocado)
         {
 
-            sol->bins[sol->qtd_bins] = criar_bin();
+            int idx = adicionar_bin(sol);
 
-            adicionar_item_bin(
-                &sol->bins[sol->qtd_bins],
-                i,
-                peso
-            );
-
-
-            sol->qtd_bins++;
+            adicionar_item_bin(&sol->bins[idx], i, peso);
 
         }
 
@@ -115,15 +108,9 @@ Solucao* best_fit(Instancia *inst)
         else
         {
 
-            sol->bins[sol->qtd_bins] = criar_bin();
+            int idx = adicionar_bin(sol);
 
-            adicionar_item_bin(
-                &sol->bins[sol->qtd_bins],
-                i,
-                peso
-            );
-
-            sol->qtd_bins++;
+            adicionar_item_bin(&sol->bins[idx], i, peso);       
 
         }
 

@@ -19,13 +19,7 @@ Solucao* multistart(Instancia *inst, const Config cfg)
 
     for(int i = 0; i < cfg.partidas; i++)
     {
-        double tempo_global =
-            (double)(clock() - inicio_global)
-            / CLOCKS_PER_SEC;
-
-        if(tempo_global >= cfg.tempo_limite)
-            break;
-
+        
         shuffle(
             pesos_reordenados,
             inst->n,
@@ -38,13 +32,14 @@ Solucao* multistart(Instancia *inst, const Config cfg)
 
         Solucao *s = h(inst);
 
-        // s = busca_local_exaustiva(s, inst, cfg.tempo_limite);
+        s = busca_local_exaustiva(s, inst, cfg.tempo_limite);
 
-        printf("Partida %d -> %d bins\t",
+        printf(
+            "Partida %d -> %d bins\t",
                i + 1,
-               s->qtd_bins);
+               s->qtd_bins
+            );
                
-        Bin * bin = s->bins;
         print_bins(s, inst);
 
         if(melhor_global == NULL ||

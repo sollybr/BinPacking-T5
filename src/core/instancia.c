@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "core/instancia.h"
 
-
 Instancia* ler_instancia(const char *arquivo)
 {
     FILE *fp = fopen(arquivo, "r");
